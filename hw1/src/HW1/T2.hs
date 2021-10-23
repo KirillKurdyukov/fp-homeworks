@@ -1,16 +1,17 @@
 module HW1.T2
- ( N (..),
-    nplus,
-    nmulti,
-    nsub,
-    ncmp,
-    nFromNatural,
-    nToNum,
-    nEven,
-    nOdd,
-    ndiv,
-    nmod
- ) where
+  (
+    N (..)
+  , nplus
+  , nmulti
+  , nsub
+  , ncmp
+  , nFromNatural
+  , nToNum
+  , nEven
+  , nOdd
+  , ndiv
+  , nmod
+  ) where
 
 import Data.Maybe
 import Numeric.Natural

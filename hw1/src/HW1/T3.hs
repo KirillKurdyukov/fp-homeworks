@@ -1,16 +1,19 @@
 module HW1.T3
-  ( Tree (..),
-    tsize,
-    tdepth,
-    tmember,
-    tinsert,
-    tFromList,
+  (
+    Tree (..)
+  , tsize
+  , tdepth
+  , tmember
+  , tinsert
+  , tFromList
   ) where
 
 import Data.Function (on)
 
 -- AVL tree
-data Tree a = Leaf | Branch (Int, Int) (Tree a) a (Tree a)
+data Tree a
+  = Leaf
+  | Branch (Int, Int) (Tree a) a (Tree a)
   deriving (Show)
 
 tsize :: Tree a -> Int -- Size of the tree, O(1)

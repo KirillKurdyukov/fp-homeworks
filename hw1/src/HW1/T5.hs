@@ -1,7 +1,8 @@
-module HW1.T5 (
-  splitOn,
-  joinWith
-) where
+module HW1.T5 
+  (
+    splitOn
+  , joinWith
+  ) where
 
 import Data.List.NonEmpty
 

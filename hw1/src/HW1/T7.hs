@@ -1,8 +1,9 @@
 module HW1.T7
-  ( ListPlus (..),
-    Inclusive (..),
-    DotString (..),
-    Fun (..),
+  (   
+    ListPlus (..)
+  , Inclusive (..)
+  , DotString (..)
+  , Fun (..)
   ) where
 
 data ListPlus a = a :+ ListPlus a | Last a
@@ -15,16 +16,16 @@ instance Semigroup (ListPlus a) where
 
 data Inclusive a b = This a | That b | Both a b
 
-instance Semigroup (Inclusive a b) where
-  (Both x _) <> (Both _ v) = Both x v
+instance (Semigroup a, Semigroup b) => Semigroup (Inclusive a b) where
+  (Both x y) <> (Both u v) = Both (x <> u) $ y <> v
   (This x) <> (That y)     = Both x y
-  (This x) <> (This _)     = This x
-  (That _) <> (That y)     = That y
+  (This x) <> (This y)     = This $ x <> y
+  (That x) <> (That y)     = That $ x <> y
   (That y) <> (This x)     = This x <> That y
-  (This x) <> (Both _ v)   = Both x v
-  b@(Both _ _) <> (This _) = b
-  (That _) <> b@(Both _ _) = b
-  (Both u _) <> (That y)   = Both u y
+  (This x) <> (Both u v)   = Both (x <> u) v
+  (Both x y) <> (This u)   = Both (x <> u) y
+  (That x) <> (Both u v)   = Both u $ x <> v
+  (Both x y) <> (That u)   = Both x $ y <> u
 
 newtype DotString = DS String
   deriving (Show)

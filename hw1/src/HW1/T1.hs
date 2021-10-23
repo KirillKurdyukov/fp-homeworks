@@ -1,16 +1,24 @@
 {-# LANGUAGE LambdaCase #-}
 
 module HW1.T1
-  ( Day (..),
-    nextDay,
-    afterDays,
-    isWeekend,
-    daysToParty,
+  (
+    Day (..)
+  , nextDay
+  , afterDays
+  , isWeekend
+  , daysToParty
   ) where
 
 import GHC.Natural
 
-data Day = Monday | Tuesday | Wednesday | Thursday | Friday | Saturday | Sunday
+data Day
+  = Monday
+  | Tuesday
+  | Wednesday
+  | Thursday
+  | Friday
+  | Saturday
+  | Sunday
   deriving (Eq, Show)
 
 nextDay :: Day -> Day
@@ -35,7 +43,7 @@ afterDays count day =
 isWeekend :: Day -> Bool
 isWeekend day
   | day == Saturday = True
-  | day == Sunday = True
+  | day == Sunday   = True
   | otherwise = False
 
 daysToParty :: Day -> Natural
