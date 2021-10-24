@@ -3,11 +3,10 @@ module HW1.T6
   , mcat
   ) where
 
-import Data.Foldable (foldl')
-import Data.Maybe (fromMaybe)
+import Data.Foldable (fold, foldl')
 
 mcat :: Monoid a => [Maybe a] -> a
-mcat = foldMap (fromMaybe mempty)
+mcat = fold . fold 
 
 epart :: (Monoid a, Monoid b) => [Either a b] -> (a, b)
 epart = foldl' adder (mempty, mempty)
