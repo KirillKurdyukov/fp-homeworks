@@ -1,0 +1,104 @@
+{
+  "tests": [
+    {
+      "name": "Submit code",
+      "setup": "curl -L https://int-index.gitlab.io/hw-checker/hw-checker --output hw-checker && chmod u+x hw-checker",
+      "run": "test -f \"hw1/hw1.cabal\"",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 3,
+      "points": 1
+    },
+    {
+      "name": "Task 1",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 1",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Task 2",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 2",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Task 2 – Advanced",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 2a",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Task 3",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 3",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Task 3 – Advanced",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 3a",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 3
+    },
+    {
+      "name": "Task 4",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 4",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Task 5",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 5",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Task 6",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 6",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    },
+    {
+      "name": "Task 7",
+      "setup": "",
+      "run": "./hw-checker -d hw1 -t 7",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 10,
+      "points": 1
+    }
+  ]
+}
