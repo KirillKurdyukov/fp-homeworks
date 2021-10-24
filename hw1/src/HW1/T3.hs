@@ -9,6 +9,7 @@ module HW1.T3
   ) where
 
 import Data.Function (on)
+import Data.Foldable (foldl')
 
 -- AVL tree
 data Tree a
@@ -80,4 +81,4 @@ tinsert el (Branch s leftT val rightT) =
     GT -> balanceTree $ Branch s leftT val $ tinsert el rightT
 
 tFromList :: Ord a => [a] -> Tree a -- Build a tree from a list, O(n log n)
-tFromList = foldr tinsert Leaf
+tFromList = foldl' (flip tinsert) Leaf

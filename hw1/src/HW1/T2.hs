@@ -2,7 +2,7 @@ module HW1.T2
   (
     N (..)
   , nplus
-  , nmulti
+  , nmult
   , nsub
   , ncmp
   , nFromNatural
@@ -23,9 +23,9 @@ nplus :: N -> N -> N -- addition
 nplus Z b     = b
 nplus (S c) b = nplus c $ S b
 
-nmulti :: N -> N -> N-- multiplication
-nmulti _ Z     = Z
-nmulti a (S c) = nplus a $ nmulti a c
+nmult :: N -> N -> N-- multiplication
+nmult _ Z     = Z
+nmult a (S c) = nplus a $ nmult a c
 
 nsub :: N -> N -> Maybe N -- subtraction
 nsub Z (S _)     = Nothing
@@ -76,4 +76,4 @@ ndiv a b =
    in helper a b Z
 
 nmod :: N -> N -> N
-nmod a b = fromJust $ nsub a $ nmulti b $ ndiv a b
+nmod a b = fromJust $ nsub a $ nmult b $ ndiv a b
