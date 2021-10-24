@@ -3,7 +3,7 @@
     {
       "name": "Submit code",
       "setup": "curl -L https://int-index.gitlab.io/hw-checker/hw-checker --output hw-checker && chmod u+x hw-checker",
-      "run": "test -f \"hw0/hw0.cabal\"",
+      "run": "test -f \"hw1/hw1.cabal\"",
       "input": "",
       "output": "",
       "comparison": "included",
