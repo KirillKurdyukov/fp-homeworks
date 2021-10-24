@@ -8,8 +8,8 @@ module HW1.T3
   , tFromList
   ) where
 
-import Data.Function (on)
-import Data.Foldable (foldl')
+import           Data.Foldable (foldl')
+import           Data.Function (on)
 
 -- AVL tree
 data Tree a
@@ -56,29 +56,25 @@ rotateLeft (Branch _ leftT x (Branch _ rl y rr)) = mkBranch (mkBranch leftT x rl
 
 balanceTree :: Tree a -> Tree a
 balanceTree Leaf = Leaf
-balanceTree (Branch _ leftT val rightT) =
-  let
-    fixHeight = mkBranch leftT val rightT
-    balance = balanceFactor fixHeight
-    updates = (tsize fixHeight, tdepth fixHeight)
-   in case balance of
-        2 ->
-          if balanceFactor rightT < 0
-            then rotateLeft $ Branch updates leftT val $ rotateRight rightT
-            else rotateLeft fixHeight
-        -2 ->
-          if balanceFactor leftT > 0
-            then rotateRight $ Branch updates (rotateLeft leftT) val rightT
-            else rotateRight fixHeight
-        _ -> fixHeight
+balanceTree tree@(Branch _ leftT val rightT) =
+  case balanceFactor tree of
+    2 ->
+      if balanceFactor rightT < 0
+        then rotateLeft $ mkBranch leftT val $ rotateRight rightT
+        else rotateLeft tree
+    -2 ->
+      if balanceFactor leftT > 0
+        then rotateRight $ mkBranch (rotateLeft leftT) val rightT
+        else rotateRight tree
+    _ -> tree
 
 tinsert :: Ord a => a -> Tree a -> Tree a -- Insert an element into tree, O(log n)
-tinsert el Leaf = Branch (1, 0) Leaf el Leaf
-tinsert el (Branch s leftT val rightT) =
+tinsert el Leaf = Branch (1, 1) Leaf el Leaf
+tinsert el tree@(Branch _ leftT val rightT) =
   case compare el val of
-    EQ -> Branch s leftT val rightT
-    LT -> balanceTree $ Branch s (tinsert el leftT) val rightT
-    GT -> balanceTree $ Branch s leftT val $ tinsert el rightT
+    EQ -> tree
+    LT -> balanceTree $ mkBranch (tinsert el leftT) val rightT
+    GT -> balanceTree $ mkBranch leftT val $ tinsert el rightT
 
 tFromList :: Ord a => [a] -> Tree a -- Build a tree from a list, O(n log n)
 tFromList = foldl' (flip tinsert) Leaf

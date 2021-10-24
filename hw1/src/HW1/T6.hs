@@ -5,7 +5,7 @@ module HW1.T6
   ) where
 
 import Data.Maybe (fromMaybe)
-import Data.List (foldl')
+import Data.Foldable (foldl')
 
 mcat :: Monoid a => [Maybe a] -> a
 mcat = foldMap (fromMaybe mempty)
