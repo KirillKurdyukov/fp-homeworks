@@ -1,7 +1,6 @@
-module HW1.T5 
-  (
-    splitOn
-  , joinWith
+module HW1.T5
+  ( joinWith
+  , splitOn
   ) where
 
 import Data.List.NonEmpty

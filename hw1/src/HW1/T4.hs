@@ -1,6 +1,5 @@
 module HW1.T4
-  (
-    tfoldr
+  ( tfoldr
   , treeToList
   ) where
 

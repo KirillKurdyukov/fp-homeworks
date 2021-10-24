@@ -1,15 +1,14 @@
 module HW1.T3
-  (
-    Tree (..)
-  , tsize
-  , tdepth
-  , tmember
-  , tinsert
+  ( Tree (..)
   , tFromList
+  , tdepth
+  , tinsert
+  , tmember
+  , tsize
   ) where
 
-import           Data.Foldable (foldl')
-import           Data.Function (on)
+import Data.Foldable (foldl')
+import Data.Function (on)
 
 -- AVL tree
 data Tree a
