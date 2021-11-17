@@ -18,7 +18,12 @@ tested-with:         GHC == 8.0.1
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Lib
+  exposed-modules:     HW2.T1,
+                       HW2.T2,
+                       HW2.T3,
+                       HW2.T4,
+                       HW2.T5,
+                       HW2.T6
   ghc-options:         -Wall
   build-depends:       base >= 4.9 && < 5
                      , scientific
