@@ -1,5 +1,6 @@
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiWayIf                 #-}
 {-# LANGUAGE LambdaCase #-}
 
 module HW2.T6
@@ -17,7 +18,7 @@ import GHC.Natural
 import Control.Applicative (Alternative (..), optional)
 import Control.Monad (MonadPlus (..), mfilter, void)
 import Data.Char (digitToInt, isDigit, isSpace, isUpper)
-import Data.Scientific (scientific, toRealFloat)
+import Data.Scientific (Scientific(..), scientific, toRealFloat)
 
 import HW2.T1 (Annotated (..), Except (..))
 import HW2.T4 (Expr (..), Prim (..))
@@ -87,21 +88,21 @@ parseExpr :: String -> Except ParseError Expr
 parseExpr = runP startParserMathExpr
 
 startParserMathExpr :: Parser Expr
-startParserMathExpr = do 
+startParserMathExpr = do
   res <- nonTerminalE
   skipWhiteSpace
   pEof
-  return res 
+  return res
 
-getOp :: Char -> Prim a a  
+getOp :: Char -> Expr -> Expr -> Prim Expr
 getOp = \case
   '+' -> Add
-  '-' -> Sub 
-  '*' -> Mul 
-  '/' -> Div 
+  '-' -> Sub
+  '*' -> Mul
+  '/' -> Div
   _   -> undefined
-  
-  
+
+
 nonTerminalF :: Parser Expr
 nonTerminalF = do
   skipWhiteSpace
@@ -124,21 +125,21 @@ nonTerminalE = do
 nonTerminalT :: Parser Expr
 nonTerminalT = do
   acc <- nonTerminalF
-  nonTerminalT' acc 
+  nonTerminalT' acc
 
 nonTerminalE' :: Expr -> Parser Expr
 nonTerminalE' acc = flip (<|>) (return acc) $ do
   skipWhiteSpace
   op  <- getC (== '+') <|> getC (== '-')
   t   <- nonTerminalT
-  nonTerminalE' $ getOp op acc t
+  nonTerminalE' $ Op $ getOp op acc t
 
 nonTerminalT' :: Expr -> Parser Expr
 nonTerminalT' acc = flip (<|>) (return acc) $ do
   skipWhiteSpace
   op <- getC (== '*') <|> getC (== '/')
   f  <- nonTerminalF
-  nonTerminalT' getOp op acc f
+  nonTerminalT' $ Op $ getOp op acc f
 
 skipWhiteSpace :: Parser ()
 skipWhiteSpace = void $ many $ mfilter isSpace pChar
@@ -156,7 +157,7 @@ parseDouble = do
   case dot of
     (Just '.') -> do
       floatPart <- parseDigit
-      return $ Val $ toRealFloat $ fromInteger (parseIntPart intPart) 
+      return $ Val $ toRealFloat $ fromInteger (parseIntPart intPart)
         + parseFloatPart floatPart (length floatPart)
     _ -> return $ Val $ fromInteger $ parseIntPart intPart
 
@@ -164,7 +165,7 @@ parseIntPart :: String -> Integer
 parseIntPart = fromIntegral . foldl (\a x -> a * 10 + x) 0 . map digitToInt
 
 parseFloatPart :: String -> Int -> Scientific
-parseFloatPart str len = scientific (parseIntPart str) (-1 * len) 
+parseFloatPart str len = scientific (parseIntPart str) (-1 * len)
 
 parseDigit :: Parser String
 parseDigit = some (mfilter isDigit pChar)
@@ -184,7 +185,7 @@ nonTerminalT' acc = do
     '/' -> return $ Op $ Div acc f
     _   -> return acc
   nonTerminalT' newAcc <|> return newAcc
-  
+
 after:
 
 nonTerminalT' :: Expr -> Parser Expr
@@ -192,5 +193,5 @@ nonTerminalT' acc = flip (<|>) (return acc) $ do
   skipWhiteSpace
   op <- getC (== '*') <|> getC (== '/')
   f  <- nonTerminalF
-  nonTerminalT' getOp op acc f  
+  nonTerminalT' getOp op acc f
 -}
