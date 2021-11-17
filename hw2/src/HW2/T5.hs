@@ -7,6 +7,7 @@ module HW2.T5
   , joinExceptState
   , mapExceptState
   , modifyExceptState
+  , throwExceptState
   , wrapExceptState
   ) where
 
@@ -15,7 +16,7 @@ import Control.Monad (ap)
 import HW2.T1 (Annotated (..), Except (..), mapAnnotated)
 import HW2.T4 (Expr (..), Prim (..))
 
-data ExceptState e s a = ES {runES :: s -> Except e (Annotated s a)}
+newtype ExceptState e s a = ES {runES :: s -> Except e (Annotated s a)}
 
 mapExceptState :: (a -> b) -> ExceptState e s a -> ExceptState e s b
 mapExceptState f m = ES $ \s ->
