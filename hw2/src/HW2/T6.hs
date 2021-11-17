@@ -1,6 +1,5 @@
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiWayIf                 #-}
 {-# LANGUAGE LambdaCase #-}
 
 module HW2.T6
@@ -18,7 +17,7 @@ import GHC.Natural
 import Control.Applicative (Alternative (..), optional)
 import Control.Monad (MonadPlus (..), mfilter, void)
 import Data.Char (digitToInt, isDigit, isSpace, isUpper)
-import Data.Scientific (Scientific(..), scientific, toRealFloat)
+import Data.Scientific (scientific, toRealFloat)
 
 import HW2.T1 (Annotated (..), Except (..))
 import HW2.T4 (Expr (..), Prim (..))
