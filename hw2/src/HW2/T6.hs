@@ -1,5 +1,7 @@
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiWayIf                 #-}
+{-# LANGUAGE LambdaCase #-}
 
 module HW2.T6
   ( ParseError (..)
@@ -91,6 +93,15 @@ startParserMathExpr = do
   skipWhiteSpace
   pEof
   return res 
+
+getOp :: Char -> Prim a a  
+getOp = \case
+  '+' -> Add
+  '-' -> Sub 
+  '*' -> Mul 
+  '/' -> Div 
+  _   -> undefined
+  
   
 nonTerminalF :: Parser Expr
 nonTerminalF = do
@@ -109,34 +120,26 @@ nonTerminalF = do
 nonTerminalE :: Parser Expr
 nonTerminalE = do
   acc <- nonTerminalT
-  nonTerminalE' acc <|> return acc
+  nonTerminalE' acc
 
 nonTerminalT :: Parser Expr
 nonTerminalT = do
   acc <- nonTerminalF
-  nonTerminalT' acc <|> return acc
+  nonTerminalT' acc 
 
 nonTerminalE' :: Expr -> Parser Expr
-nonTerminalE' acc = do
+nonTerminalE' acc = flip (<|>) (return acc) $ do
   skipWhiteSpace
   op  <- getC (== '+') <|> getC (== '-')
   t   <- nonTerminalT
-  newAcc <- case op of
-    '+' -> return $ Op $ Add acc t
-    '-' -> return $ Op $ Sub acc t
-    _   ->  return acc
-  nonTerminalE' newAcc <|> return newAcc
+  nonTerminalE' $ getOp op acc t
 
 nonTerminalT' :: Expr -> Parser Expr
-nonTerminalT' acc = do
+nonTerminalT' acc = flip (<|>) (return acc) $ do
   skipWhiteSpace
   op <- getC (== '*') <|> getC (== '/')
   f  <- nonTerminalF
-  newAcc  <- case op of
-    '*' -> return $ Op $ Mul acc f
-    '/' -> return $ Op $ Div acc f
-    _   -> return acc
-  nonTerminalT' newAcc <|> return newAcc
+  nonTerminalT' getOp op acc f
 
 skipWhiteSpace :: Parser ()
 skipWhiteSpace = void $ many $ mfilter isSpace pChar
@@ -166,3 +169,29 @@ parseFloatPart str len = scientific (parseIntPart str) (-1 * len)
 
 parseDigit :: Parser String
 parseDigit = some (mfilter isDigit pChar)
+
+{-
+Genius move
+
+before:
+
+nonTerminalT' :: Expr -> Parser Expr
+nonTerminalT' acc = do
+  skipWhiteSpace
+  op <- getC (== '*') <|> getC (== '/')
+  f  <- nonTerminalF
+  newAcc  <- case op of
+    '*' -> return $ Op $ Mul acc f
+    '/' -> return $ Op $ Div acc f
+    _   -> return acc
+  nonTerminalT' newAcc <|> return newAcc
+  
+after:
+
+nonTerminalT' :: Expr -> Parser Expr
+nonTerminalT' acc = flip (<|>) (return acc) $ do
+  skipWhiteSpace
+  op <- getC (== '*') <|> getC (== '/')
+  f  <- nonTerminalF
+  nonTerminalT' getOp op acc f  
+-}
