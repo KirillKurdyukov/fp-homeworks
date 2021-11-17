@@ -1,6 +1,5 @@
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiWayIf                 #-}
 {-# LANGUAGE LambdaCase #-}
 
 module HW2.T6
@@ -193,5 +192,5 @@ nonTerminalT' acc = flip (<|>) (return acc) $ do
   skipWhiteSpace
   op <- getC (== '*') <|> getC (== '/')
   f  <- nonTerminalF
-  nonTerminalT' getOp op acc f
+  nonTerminalT' $ Op $ getOp op acc f
 -}
