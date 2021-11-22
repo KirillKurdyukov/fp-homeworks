@@ -18,9 +18,11 @@ map' = fix (\rec f l
     (x : xs) -> f x : rec f xs)
 
 fib :: Natural -> Natural
-fib = fix (\rec n -> if n == 0 then 0
-   else if n == 1 then 1
-   else rec (n - 1) + rec (n - 2))
+fib = fix (\_ n -> helper 0 1 n)
+   where
+     helper :: Natural -> Natural -> Natural -> Natural
+     helper = fix (\rec a b n
+      -> if n == 0 then a else rec b (a + b) (n - 1))
 
 fac :: Natural -> Natural
 fac = fix (\rec n -> if n <= 1 then 1 else n * rec (n - 1))
