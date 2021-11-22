@@ -14,7 +14,7 @@ module HW2.T4
 import Control.Monad (ap)
 import HW2.T1 (Annotated (..), mapAnnotated)
 
-data State s a = S {runS :: s -> Annotated s a} 
+newtype State s a = S {runS :: s -> Annotated s a} 
 
 mapState :: (a -> b) -> State s a -> State s b
 mapState f m = S $ \s -> let a = runS m s in mapAnnotated f a

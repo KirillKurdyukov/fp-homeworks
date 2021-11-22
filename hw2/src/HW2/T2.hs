@@ -1,5 +1,5 @@
-{-# LANGUAGE LambdaCase          #-}
-{-# LANGUAGE TupleSections       #-}
+{-# LANGUAGE LambdaCase    #-}
+{-# LANGUAGE TupleSections #-}
 
 {-
  wrap <=> return from Monad
@@ -32,8 +32,9 @@ module HW2.T2
   , wrapStream
   ) where
 
-import HW2.T1 (Annotated (..), Except (..), Fun (..), List (..), Option (..), Pair (..),
-               Prioritised (..), Quad (..), Stream (..), mapList, mapPrioritised)
+import           HW2.T1 (Annotated (..), Except (..), Fun (..), List (..),
+                         Option (..), Pair (..), Prioritised (..), Quad (..),
+                         Stream (..), mapList, mapPrioritised)
 
 distOption :: (Option a, Option b) -> Option (a, b)
 distOption = \case

@@ -12,8 +12,8 @@ module HW1.T2
   , nsub
   ) where
 
-import Data.Maybe
-import Numeric.Natural
+import           Data.Maybe
+import           Numeric.Natural
 
 data N = Z | S N --Арифметика Пеано
   deriving(Show)

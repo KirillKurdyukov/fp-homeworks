@@ -8,7 +8,8 @@ module HW2.T3
   , joinOption
   ) where
 
-import HW2.T1 (Annotated (..), Except (..), Fun (..), List (..), Option (..))
+import           HW2.T1 (Annotated (..), Except (..), Fun (..), List (..),
+                         Option (..))
 
 joinOption :: Option (Option a) -> Option a
 joinOption = \case

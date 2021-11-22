@@ -11,10 +11,10 @@ module HW2.T5
   , wrapExceptState
   ) where
 
-import Control.Monad (ap)
+import           Control.Monad (ap)
 
-import HW2.T1 (Annotated (..), Except (..), mapAnnotated)
-import HW2.T4 (Expr (..), Prim (..))
+import           HW2.T1        (Annotated (..), Except (..), mapAnnotated)
+import           HW2.T4        (Expr (..), Prim (..))
 
 newtype ExceptState e s a = ES {runES :: s -> Except e (Annotated s a)}
 

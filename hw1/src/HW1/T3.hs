@@ -7,8 +7,8 @@ module HW1.T3
   , tsize
   ) where
 
-import Data.Foldable (foldl')
-import Data.Function (on)
+import           Data.Foldable (foldl')
+import           Data.Function (on)
 
 -- AVL tree
 data Tree a

@@ -1,6 +1,6 @@
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase                 #-}
 
 module HW2.T6
   ( ParseError (..)
@@ -12,16 +12,16 @@ module HW2.T6
   , runP
   ) where
 
-import GHC.Natural
+import           GHC.Natural
 
-import Control.Applicative (Alternative (..), optional)
-import Control.Monad (MonadPlus (..), mfilter, void)
-import Data.Char (digitToInt, isDigit, isSpace, isUpper)
-import Data.Scientific (Scientific(..), scientific, toRealFloat)
+import           Control.Applicative (Alternative (..), optional)
+import           Control.Monad       (MonadPlus (..), mfilter, void)
+import           Data.Char           (digitToInt, isDigit, isSpace, isUpper)
+import           Data.Scientific     (Scientific (..), scientific, toRealFloat)
 
-import HW2.T1 (Annotated (..), Except (..))
-import HW2.T4 (Expr (..), Prim (..))
-import HW2.T5 (ExceptState (..))
+import           HW2.T1              (Annotated (..), Except (..))
+import           HW2.T4              (Expr (..), Prim (..))
+import           HW2.T5              (ExceptState (..))
 
 newtype ParseError = ErrorAtPos Natural deriving Show
 --data ExceptState e s a = ES {runES :: s -> Except e (Annotated s a)}
@@ -31,7 +31,7 @@ newtype Parser a = P (ExceptState ParseError (Natural, String) a)
 runP :: Parser a -> String -> Except ParseError a
 runP (P p) str
   = case runES p (0, str) of
-      (Error e) -> Error e
+      (Error e)          -> Error e
       (Success (a :# _)) -> Success a
 
 {-

@@ -8,7 +8,7 @@ module HW1.T1
   , nextDay
   ) where
 
-import GHC.Natural
+import           GHC.Natural
 
 data Day
   = Monday

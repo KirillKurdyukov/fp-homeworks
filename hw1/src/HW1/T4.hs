@@ -3,7 +3,7 @@ module HW1.T4
   , treeToList
   ) where
 
-import HW1.T3 (Tree (..))
+import           HW1.T3 (Tree (..))
 
 tfoldr :: (a -> b -> b) -> b -> Tree a -> b
 tfoldr _ ini Leaf                        = ini
