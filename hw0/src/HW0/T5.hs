@@ -15,7 +15,7 @@ import           GHC.Natural
 type Nat a = (a -> a) -> a -> a
 
 nz :: Nat a
-nz = id
+nz _ a = a 
 
 --((a -> a) -> a -> a) -> ((a -> a) -> a -> a)
 ns :: Nat a -> Nat a
