@@ -12,7 +12,6 @@ module HW0.T5
 
 import           GHC.Natural
 
-
 type Nat a = (a -> a) -> a -> a
 
 nz :: Nat a
@@ -26,7 +25,6 @@ ns f g = g . f g
 nplus, nmult :: Nat a -> Nat a -> Nat a
 nplus a b f = a f . b f
 nmult a b = a . b
-
 
 nFromNatural :: Natural -> Nat a
 nFromNatural = \case
