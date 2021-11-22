@@ -9,7 +9,7 @@ import           Data.Function (fix)
 import           GHC.Natural
 
 repeat' :: a -> [a]
-repeat' = fix (\rec x -> x : rec x)
+repeat' x = fix (x:)
 
 map' :: (a -> b) -> [a] -> [b]
 map' = fix (\rec f l
