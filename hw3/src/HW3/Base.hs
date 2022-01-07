@@ -3,13 +3,13 @@
 
 module HW3.Base where
 
-import Codec.Serialise (Serialise)
-import Data.ByteString (ByteString)
-import Data.Sequence (Seq)
-import Data.Text (Text)
-import Data.Time (UTCTime)
-import GHC.Generics (Generic)
-import Data.Map (Map)
+import           Codec.Serialise (Serialise)
+import           Data.ByteString (ByteString)
+import           Data.Map        (Map)
+import           Data.Sequence   (Seq)
+import           Data.Text       (Text)
+import           Data.Time       (UTCTime)
+import           GHC.Generics    (Generic)
 
 data HiFun
   = HiFunDiv
@@ -48,11 +48,11 @@ data HiFun
   | HiFunChDir
   | HiFunParseTime
   | HiFunRand
-  | HiFunEcho 
+  | HiFunEcho
   | HiFunCount
   | HiFunKeys
-  | HiFunValues 
-  | HiFunInvert 
+  | HiFunValues
+  | HiFunInvert
   deriving (Eq, Ord, Generic)
 
 instance Serialise HiFun
@@ -94,7 +94,7 @@ data HiAction
   | HiActionCwd
   | HiActionNow
   | HiActionRand Int Int
-  | HiActionEcho Text 
+  | HiActionEcho Text
   deriving (Eq, Ord, Show, Generic)
 
 instance Serialise HiAction
@@ -102,7 +102,7 @@ instance Serialise HiAction
 data Arity
   = Unary
   | Binary
-  | BinaryLazy 
+  | BinaryLazy
   | Triple
   | Many
 
@@ -143,9 +143,9 @@ getArity = \case
   HiFunMkDir          -> Unary
   HiFunChDir          -> Unary
   HiFunParseTime      -> Unary
-  HiFunRand           -> Binary 
-  HiFunEcho           -> Unary 
-  HiFunCount          -> Unary 
+  HiFunRand           -> Binary
+  HiFunEcho           -> Unary
+  HiFunCount          -> Unary
   HiFunKeys           -> Unary
   HiFunValues         -> Unary
   HiFunInvert         -> Unary
@@ -190,7 +190,7 @@ instance Show HiFun where
     HiFunMkDir          -> "mkdir"
     HiFunChDir          -> "cd"
     HiFunParseTime      -> "parse-time"
-    HiFunRand           -> "rand" 
+    HiFunRand           -> "rand"
     HiFunEcho           -> "echo"
     HiFunCount          -> "count"
     HiFunKeys           -> "keys"
