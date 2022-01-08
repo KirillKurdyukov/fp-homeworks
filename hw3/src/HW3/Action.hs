@@ -67,7 +67,7 @@ instance HiMonad HIO where
       if member AllowRead e then do
         setCurrentDirectory path
         return HiValueNull
-      else throwIO $ PermissionRequired AllowWrite
+      else throwIO $ PermissionRequired AllowRead
     HiActionMkDir path -> HIO $ \e ->
       if member AllowWrite e then do
         createDirectory path

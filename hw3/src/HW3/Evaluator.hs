@@ -97,7 +97,7 @@ unary f [e] = do
         HiValueBytes $
           toStrict $ decompressWith defaultDecompressParams $ fromStrict bytes
     (HiFunSerialise, x') -> return $ HiValueBytes $ toStrict $ serialise x'
-    (HiFunDeserialise, HiValueBytes bytes) -> return $ HiValueBytes $ deserialise $ fromStrict bytes
+    (HiFunDeserialise, HiValueBytes bytes) -> return $ deserialise $ fromStrict bytes
     (HiFunEncodeUtf8, HiValueString str) -> return $ HiValueBytes $ encodeUtf8 str
     (HiFunDecodeUtf8, HiValueBytes bytes) -> case decodeUtf8' bytes of
       Right res -> return $ HiValueString res
@@ -172,7 +172,9 @@ binary fun [e1, e2] = do
       _ -> throwE HiErrorInvalidArgument
     (HiFunWrite, HiValueString path, HiValueString bytes) ->
       return $ HiValueAction $ HiActionWrite (T.unpack path) (encodeUtf8 bytes)
-    (HiFunRand, HiValueNumber i, HiValueNumber j) ->
+    (HiFunRand, HiValueNumber i, HiValueNumber j) -> do 
+      _ <- isInteger i 
+      _ <- isInteger j 
       if denominator i == 1 && denominator j == 1
       then return $ HiValueAction $ HiActionRand (truncate i) (truncate j)
       else return HiValueNull
