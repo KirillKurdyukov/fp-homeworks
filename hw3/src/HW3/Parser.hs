@@ -4,7 +4,10 @@
 module HW3.Parser where
 
 import           Control.Monad.Combinators.Expr
-import           Data.ByteString                hiding (count, head)
+import           Data.ByteString                hiding (count, head,
+                                                 intercalate)
+import           Data.Char                      (isAlpha, isAlphaNum)
+import           Data.List                      (intercalate)
 import qualified Data.Text                      as T (Text, pack)
 import           Data.Void                      (Void)
 import           Data.Word                      (Word8)
@@ -84,14 +87,18 @@ list = do
 byteString :: Parser ByteString
 byteString = pack <$> parensLattice bytes
 
+indeficator :: Parser String
+indeficator = intercalate "-" <$>
+ ((:) <$> satisfy isAlpha <*> many (satisfy isAlphaNum)) `sepBy` char '-'
+
 arg :: Parser T.Text
-arg = lexeme $ T.pack <$> many alphaNumChar
+arg = lexeme $ T.pack <$> indeficator
 
 afterDot :: Parser [HiExpr]
 afterDot = return . HiExprValue . HiValueString <$> arg
 
 dot :: Parser a -> Parser a
-dot p = symbol "." *> p
+dot p = char '.' *> p
 
 hiValue :: Parser HiExpr
 hiValue =
