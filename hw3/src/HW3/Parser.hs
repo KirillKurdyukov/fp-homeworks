@@ -157,7 +157,7 @@ hiValue =
     <|> parensBracket hiExpr
 
 argsHi :: Parser [HiExpr]
-argsHi = parensBracket args <|> dot afterDot 
+argsHi = parensBracket args <|> dot afterDot
 
 runExpr :: HiExpr -> Parser HiExpr
 runExpr e = HiExprRun <$ symbol "!" <*> pure e
@@ -165,7 +165,7 @@ runExpr e = HiExprRun <$ symbol "!" <*> pure e
 hiFun :: Parser HiExpr
 hiFun = do
   val <- hiValue
-  x <- (HiExprApply val <$> argsHi) <|> runExpr val <|> pure val 
+  x <- (HiExprApply val <$> argsHi) <|> runExpr val <|> pure val
   recExpr x
 
 hiExpr :: Parser HiExpr
@@ -182,7 +182,7 @@ hiExpr =
 
 recExpr :: HiExpr -> Parser HiExpr
 recExpr e = flip (<|>) (return e) $ do
-  res <- HiExprApply e <$> argsHi <|> runExpr e 
+  res <- HiExprApply e <$> argsHi <|> runExpr e
   recExpr res
 
 infixL :: String -> (HiExpr -> HiExpr -> HiExpr) -> Operator Parser HiExpr
@@ -217,3 +217,4 @@ operatorTable =
     [ infixR "||" $ createApplyBinary HiFunOr
     ]
   ]
+  

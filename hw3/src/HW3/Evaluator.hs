@@ -2,25 +2,28 @@
 
 module HW3.Evaluator where
 
-import Codec.Compression.Zlib
-import Codec.Serialise
-import Control.Monad.Trans (lift)
-import Control.Monad.Trans.Except
-import qualified Data.ByteString as B (pack, unpack)
-import Data.ByteString.Lazy (fromStrict, toStrict)
-import Data.Foldable (toList)
-import qualified Data.Map as M (Map, elems, fromList, fromListWith, keys, lookup, map, toList)
-import Data.Ratio (denominator)
-import Data.Semigroup (stimes)
-import Data.Sequence (fromList, reverse)
-import qualified Data.Text as T (Text, length, pack, reverse, singleton, strip, toLower, toUpper,
-                                 unpack)
-import Data.Text.Encoding (decodeUtf8', encodeUtf8)
-import Data.Time (UTCTime, addUTCTime, diffUTCTime)
-import Data.Word
-import HW3.Base
-import Prelude hiding (reverse)
-import Text.Read (readMaybe)
+import           Codec.Compression.Zlib
+import           Codec.Serialise
+import           Control.Monad.Trans        (lift)
+import           Control.Monad.Trans.Except
+import qualified Data.ByteString            as B (length, pack, reverse, unpack)
+import           Data.ByteString.Lazy       (fromStrict, toStrict)
+import           Data.Foldable              (toList)
+import qualified Data.Map                   as M (Map, elems, fromList,
+                                                  fromListWith, keys, lookup,
+                                                  map, toList)
+import           Data.Ratio                 (denominator)
+import           Data.Semigroup             (stimes)
+import           Data.Sequence              (fromList, reverse)
+import qualified Data.Text                  as T (Text, length, pack, reverse,
+                                                  singleton, strip, toLower,
+                                                  toUpper, unpack)
+import           Data.Text.Encoding         (decodeUtf8', encodeUtf8)
+import           Data.Time                  (UTCTime, addUTCTime, diffUTCTime)
+import           Data.Word
+import           HW3.Base
+import           Prelude                    hiding (reverse)
+import           Text.Read                  (readMaybe)
 
 eval :: HiMonad m => HiExpr -> m (Either HiError HiValue)
 eval = runExceptT . evalHiExpr
@@ -47,8 +50,8 @@ evalHiExpr = \case
         Triple     -> triple f' args
         Many       -> many f' args
       (HiValueString s) -> indexHi (T.unpack s) args $ return . HiValueString . T.pack
-      (HiValueList list) -> 
-        if length args > 1 
+      (HiValueList list) ->
+        if length args > 1
           then indexHi (toList list) args $ return . HiValueList . fromList
           else indexHi (toList list) args $ return . head
       (HiValueBytes bytes) ->
@@ -77,9 +80,11 @@ unary f [e] = do
     (HiFunNot, HiValueBool x') -> return $ HiValueBool $ not x'
     (HiFunLength, HiValueString str) -> return $ HiValueNumber $ fromIntegral $ T.length str
     (HiFunLength, HiValueList list) -> return $ HiValueNumber $ fromIntegral $ length list
+    (HiFunLength, HiValueBytes bytes) -> return $ HiValueNumber $ fromIntegral $ B.length bytes
     (HiFunToUpper, HiValueString str) -> return $ HiValueString $ T.toUpper str
     (HiFunToLower, HiValueString str) -> return $ HiValueString $ T.toLower str
     (HiFunReverse, HiValueString str) -> return $ HiValueString $ T.reverse str
+    (HiFunReverse, HiValueBytes bytes) -> return $ HiValueBytes $ B.reverse bytes
     (HiFunReverse, HiValueList list) -> return $ HiValueList $ reverse list
     (HiFunTrim, HiValueString str) -> return $ HiValueString $ T.strip str
     (HiFunPackBytes, HiValueList list) -> HiValueBytes . B.pack <$> mapM mapByte (toList list)
@@ -172,9 +177,9 @@ binary fun [e1, e2] = do
       _ -> throwE HiErrorInvalidArgument
     (HiFunWrite, HiValueString path, HiValueString bytes) ->
       return $ HiValueAction $ HiActionWrite (T.unpack path) (encodeUtf8 bytes)
-    (HiFunRand, HiValueNumber i, HiValueNumber j) -> do 
-      _ <- isInteger i 
-      _ <- isInteger j 
+    (HiFunRand, HiValueNumber i, HiValueNumber j) -> do
+      _ <- isInteger i
+      _ <- isInteger j
       if denominator i == 1 && denominator j == 1
       then return $ HiValueAction $ HiActionRand (truncate i) (truncate j)
       else return HiValueNull
