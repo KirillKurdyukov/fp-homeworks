@@ -2,28 +2,25 @@
 
 module HW3.Evaluator where
 
-import           Codec.Compression.Zlib
-import           Codec.Serialise
-import           Control.Monad.Trans        (lift)
-import           Control.Monad.Trans.Except
-import qualified Data.ByteString            as B (pack, unpack)
-import           Data.ByteString.Lazy       (fromStrict, toStrict)
-import           Data.Foldable              (toList)
-import qualified Data.Map                   as M (Map, elems, fromList,
-                                                  fromListWith, keys, lookup,
-                                                  map, toList)
-import           Data.Ratio                 (denominator)
-import           Data.Semigroup             (stimes)
-import           Data.Sequence              (fromList, reverse)
-import qualified Data.Text                  as T (Text, length, pack, reverse,
-                                                  singleton, strip, toLower,
-                                                  toUpper, unpack)
-import           Data.Text.Encoding         (decodeUtf8', encodeUtf8)
-import           Data.Time                  (UTCTime, addUTCTime, diffUTCTime)
-import           Data.Word
-import           HW3.Base
-import           Prelude                    hiding (reverse)
-import           Text.Read                  (readMaybe)
+import Codec.Compression.Zlib
+import Codec.Serialise
+import Control.Monad.Trans (lift)
+import Control.Monad.Trans.Except
+import qualified Data.ByteString as B (pack, unpack)
+import Data.ByteString.Lazy (fromStrict, toStrict)
+import Data.Foldable (toList)
+import qualified Data.Map as M (Map, elems, fromList, fromListWith, keys, lookup, map, toList)
+import Data.Ratio (denominator)
+import Data.Semigroup (stimes)
+import Data.Sequence (fromList, reverse)
+import qualified Data.Text as T (Text, length, pack, reverse, singleton, strip, toLower, toUpper,
+                                 unpack)
+import Data.Text.Encoding (decodeUtf8', encodeUtf8)
+import Data.Time (UTCTime, addUTCTime, diffUTCTime)
+import Data.Word
+import HW3.Base
+import Prelude hiding (reverse)
+import Text.Read (readMaybe)
 
 eval :: HiMonad m => HiExpr -> m (Either HiError HiValue)
 eval = runExceptT . evalHiExpr
@@ -50,7 +47,10 @@ evalHiExpr = \case
         Triple     -> triple f' args
         Many       -> many f' args
       (HiValueString s) -> indexHi (T.unpack s) args $ return . HiValueString . T.pack
-      (HiValueList list) -> indexHi (toList list) args $ return . HiValueList . fromList
+      (HiValueList list) -> 
+        if length args > 1 
+          then indexHi (toList list) args $ return . HiValueList . fromList
+          else indexHi (toList list) args $ return . head
       (HiValueBytes bytes) ->
         if length args > 1
           then indexHi (B.unpack bytes) args $ return . HiValueBytes . B.pack
@@ -133,12 +133,12 @@ binary fun [e1, e2] = do
     (HiFunDiv, HiValueNumber x', HiValueNumber y') -> return $ HiValueNumber $ x' / y'
     (HiFunDiv, HiValueString x', HiValueString y') -> return $ HiValueString $ x' <> T.pack "/" <> y'
     (HiFunMul, HiValueNumber x', HiValueNumber y') -> return $ HiValueNumber $ x' * y'
-    (HiFunMul, HiValueNumber x', HiValueString y') -> return $ HiValueString $ replicateHi x' y'
-    (HiFunMul, HiValueString x', HiValueNumber y') -> return $ HiValueString $ replicateHi y' x'
-    (HiFunMul, HiValueNumber x', HiValueList y') -> return $ HiValueList $ replicateHi x' y'
-    (HiFunMul, HiValueList x', HiValueNumber y') -> return $ HiValueList $ replicateHi y' x'
-    (HiFunMul, HiValueNumber x', HiValueBytes y') -> return $ HiValueBytes $ replicateHi x' y'
-    (HiFunMul, HiValueBytes x', HiValueNumber y') -> return $ HiValueBytes $ replicateHi y' x'
+    (HiFunMul, HiValueNumber x', HiValueString y') -> replicateHi (return . HiValueString) x' y'
+    (HiFunMul, HiValueString x', HiValueNumber y') -> replicateHi (return . HiValueString) y' x'
+    (HiFunMul, HiValueNumber x', HiValueList y') -> replicateHi (return . HiValueList) x' y'
+    (HiFunMul, HiValueList x', HiValueNumber y') -> replicateHi (return . HiValueList) y' x'
+    (HiFunMul, HiValueNumber x', HiValueBytes y') -> replicateHi (return . HiValueBytes) x' y'
+    (HiFunMul, HiValueBytes x', HiValueNumber y') -> replicateHi (return . HiValueBytes) y' x'
     (HiFunAdd, HiValueNumber x', HiValueNumber y') -> return $ HiValueNumber $ x' + y'
     (HiFunAdd, HiValueString x', HiValueString y') -> return $ HiValueString $ x' <> y'
     (HiFunAdd, HiValueList x', HiValueList y') -> return $ HiValueList $ x' <> y'
@@ -230,7 +230,8 @@ indexHi ::
 indexHi as [e1] to = do
   i <- evalHiExpr e1
   case i of
-    (HiValueNumber i') ->
+    (HiValueNumber i') -> do
+      _ <- isInteger i'
       if i' >= 0 && i' < fromIntegral (length as)
         then to [as !! truncate i']
         else return HiValueNull
@@ -240,20 +241,35 @@ indexHi as [e1, e2] to = do
   i <- evalHiExpr e1
   j <- evalHiExpr e2
   case (i, j) of
-    (HiValueNumber i', HiValueNumber j') -> to $ subStringHi i' j' as
-    (HiValueNumber i', HiValueNull)      -> to $ subStringHi i' (fromIntegral size) as
-    (HiValueNull, HiValueNumber j')      -> to $ subStringHi 0 j' as
-    (HiValueNull, HiValueNull)           -> to $ subStringHi 0 (fromIntegral size) as
+    (HiValueNumber i', HiValueNumber j') -> do
+      _ <- isInteger i'
+      _ <- isInteger j'
+      to $ slice i' j' as
+    (HiValueNumber i', HiValueNull)      -> do
+      _ <- isInteger i'
+      to $ slice i' (fromIntegral size) as
+    (HiValueNull, HiValueNumber j')      -> do
+      _ <- isInteger j'
+      to $ slice 0 j' as
+    (HiValueNull, HiValueNull)           -> to $ slice 0 (fromIntegral size) as
     _                                    -> throwE HiErrorInvalidArgument
 indexHi _ _ _ = throwE HiErrorArityMismatch
 
-replicateHi :: Semigroup a => Rational -> a -> a
-replicateHi r
-  | r > 0 = stimes (truncate r :: Int)
-  | otherwise = id
+isInteger :: HiMonad m => Rational -> ExceptT HiError m HiValue
+isInteger r = if denominator r == 1
+  then return (HiValueNumber r)
+  else throwE HiErrorInvalidArgument
 
-subStringHi :: Rational -> Rational -> [a] -> [a]
-subStringHi i j str =
+replicateHi :: (HiMonad m, Semigroup a) =>
+  (a -> ExceptT HiError m HiValue) ->
+  Rational -> a
+  -> ExceptT HiError m HiValue
+replicateHi f r
+  | r > 0 && denominator r == 1 = f . stimes (truncate r :: Int)
+  | otherwise = \_ -> throwE HiErrorInvalidArgument
+
+slice :: Rational -> Rational -> [a] -> [a]
+slice i j str =
   let size = length str
       i' = if i < 0 then size - abs (truncate i) else truncate i
       j' = if j < 0 then abs (truncate j) else size - truncate j

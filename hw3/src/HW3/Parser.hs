@@ -49,9 +49,6 @@ parensLattice = parens "[# " "#]"
 parensJson :: Parser a -> Parser a
 parensJson = parens "{" "}"
 
-parensValue :: Parser a -> Parser a
-parensValue p = symbol "(" *> parensValue p <* symbol ")" <|> p
-
 comma :: Parser String
 comma = symbol ","
 
@@ -160,12 +157,15 @@ hiValue =
     <|> parensBracket hiExpr
 
 argsHi :: Parser [HiExpr]
-argsHi = parensBracket args <|> dot afterDot
+argsHi = parensBracket args <|> dot afterDot 
+
+runExpr :: HiExpr -> Parser HiExpr
+runExpr e = HiExprRun <$ symbol "!" <*> pure e
 
 hiFun :: Parser HiExpr
 hiFun = do
   val <- hiValue
-  x <- (HiExprApply val <$> argsHi) <|> pure val
+  x <- (HiExprApply val <$> argsHi) <|> runExpr val <|> pure val 
   recExpr x
 
 hiExpr :: Parser HiExpr
@@ -182,7 +182,7 @@ hiExpr =
 
 recExpr :: HiExpr -> Parser HiExpr
 recExpr e = flip (<|>) (return e) $ do
-  res <- HiExprApply e <$> argsHi
+  res <- HiExprApply e <$> argsHi <|> runExpr e 
   recExpr res
 
 infixL :: String -> (HiExpr -> HiExpr -> HiExpr) -> Operator Parser HiExpr
@@ -199,9 +199,7 @@ createApplyBinary fun a b = HiExprApply (HiExprValue (HiValueFunction fun)) [a, 
 
 operatorTable :: [[Operator Parser HiExpr]]
 operatorTable =
-  [ [ Postfix $ HiExprRun <$ symbol "!"
-    ],
-    [ infixL "*" $ createApplyBinary HiFunMul,
+  [ [ infixL "*" $ createApplyBinary HiFunMul,
       InfixL $ createApplyBinary HiFunDiv <$ (lexeme . try) (string "/" <* notFollowedBy (char '='))
     ],
     [ infixL "+" $ createApplyBinary HiFunAdd,
