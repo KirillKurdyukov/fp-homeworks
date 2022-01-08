@@ -45,7 +45,7 @@ prettyAction :: HiAction -> Doc AnsiStyle
 prettyAction = \case
   HiActionCwd -> pretty "cwd"
   HiActionRead path -> pretty "read" <> parens (prettyString $ T.pack path)
-  HiActionWrite path bytes -> pretty "read" <> parens
+  HiActionWrite path bytes -> pretty "write" <> parens
     (prettyString (T.pack path) <> comma <+> prettyBytes bytes)
   HiActionMkDir path -> pretty "mkdir" <> parens (prettyString $ T.pack path)
   HiActionChDir path -> pretty "cd" <> parens (prettyString $ T.pack path)

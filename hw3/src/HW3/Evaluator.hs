@@ -177,6 +177,8 @@ binary fun [e1, e2] = do
       _ -> throwE HiErrorInvalidArgument
     (HiFunWrite, HiValueString path, HiValueString bytes) ->
       return $ HiValueAction $ HiActionWrite (T.unpack path) (encodeUtf8 bytes)
+    (HiFunWrite, HiValueString path, HiValueBytes bytes) ->
+          return $ HiValueAction $ HiActionWrite (T.unpack path) bytes
     (HiFunRand, HiValueNumber i, HiValueNumber j) -> do
       _ <- isInteger i
       _ <- isInteger j
