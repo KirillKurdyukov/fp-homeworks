@@ -14,7 +14,7 @@ import qualified Data.Map                   as M (Map, elems, fromList,
                                                   map, toList)
 import           Data.Ratio                 (denominator)
 import           Data.Semigroup             (stimes)
-import           Data.Sequence              (fromList, reverse)
+import           Data.Sequence              (Seq, fromList, reverse)
 import qualified Data.Text                  as T (Text, length, pack, reverse,
                                                   singleton, strip, toLower,
                                                   toUpper, unpack)
@@ -69,11 +69,7 @@ get assoc [e] = do
     Nothing  -> return HiValueNull
 get _ _ = throwE HiErrorArityMismatch
 
-unary ::
-  HiMonad m =>
-  HiFun ->
-  [HiExpr] ->
-  ExceptT HiError m HiValue
+unary :: HiMonad m => HiFun -> [HiExpr] -> ExceptT HiError m HiValue
 unary f [e] = do
   x <- evalHiExpr e
   case (f, x) of
@@ -125,11 +121,7 @@ unary f [e] = do
     _ -> throwE HiErrorInvalidArgument
 unary _ _ = throwE HiErrorArityMismatch
 
-binary ::
-  HiMonad m =>
-  HiFun ->
-  [HiExpr] ->
-  ExceptT HiError m HiValue
+binary :: HiMonad m => HiFun -> [HiExpr] -> ExceptT HiError m HiValue
 binary fun [e1, e2] = do
   x <- evalHiExpr e1
   y <- evalHiExpr e2
@@ -162,19 +154,9 @@ binary fun [e1, e2] = do
     (HiFunNotEquals, _, _) -> reverseCompare HiFunEquals [e1, e2]
     (HiFunRange, HiValueNumber x', HiValueNumber y') -> return $ HiValueList $ fromList $ map HiValueNumber [x' .. y']
     (HiFunFold, HiValueFunction f, HiValueList list) -> case getArity f of
-      Binary ->
-        if null list
-          then return HiValueNull
-          else
-            let l = map pure $ toList list
-             in foldl1
-                  ( \a b -> do
-                      a' <- a
-                      b' <- b
-                      binary f [HiExprValue a', HiExprValue b']
-                  )
-                  l
-      _ -> throwE HiErrorInvalidArgument
+      Binary     -> hiFold f list binary
+      BinaryLazy -> hiFold f list binaryLazy
+      _          -> throwE HiErrorInvalidArgument
     (HiFunWrite, HiValueString path, HiValueString bytes) ->
       return $ HiValueAction $ HiActionWrite (T.unpack path) (encodeUtf8 bytes)
     (HiFunWrite, HiValueString path, HiValueBytes bytes) ->
@@ -188,11 +170,7 @@ binary fun [e1, e2] = do
     _ -> throwE HiErrorInvalidArgument
 binary _ _ = throwE HiErrorArityMismatch
 
-binaryLazy ::
- HiMonad m =>
- HiFun ->
- [HiExpr] ->
- ExceptT HiError m HiValue
+binaryLazy :: HiMonad m => HiFun -> [HiExpr] -> ExceptT HiError m HiValue
 binaryLazy fun [e1, e2] = do
   x <- evalHiExpr e1
   case (fun, x) of
@@ -206,11 +184,20 @@ binaryLazy fun [e1, e2] = do
     _                             -> throwE HiErrorInvalidArgument
 binaryLazy _ _ = throwE HiErrorArityMismatch
 
-triple ::
-  HiMonad m =>
-  HiFun ->
-  [HiExpr] ->
-  ExceptT HiError m HiValue
+hiFold :: HiMonad m => HiFun -> Seq HiValue
+  -> (HiFun -> [HiExpr] -> ExceptT HiError m HiValue)
+  -> ExceptT HiError m HiValue
+hiFold f list folder =  if null list
+  then return HiValueNull
+  else foldl1
+          ( \a b -> do
+              a' <- a
+              b' <- b
+              folder f [HiExprValue a', HiExprValue b']
+          )
+          $ map pure $ toList list
+
+triple :: HiMonad m => HiFun -> [HiExpr] -> ExceptT HiError m HiValue
 triple fun [e1, e2, e3] = do
   x <- evalHiExpr e1
   case (fun, x) of
@@ -219,23 +206,16 @@ triple fun [e1, e2, e3] = do
     _                            -> throwE HiErrorInvalidArgument
 triple _ _ = throwE HiErrorArityMismatch
 
-reverseCompare ::
-  HiMonad m =>
-  HiFun ->
-  [HiExpr] ->
-  ExceptT HiError m HiValue
+reverseCompare :: HiMonad m => HiFun -> [HiExpr] -> ExceptT HiError m HiValue
 reverseCompare f es = do
   r <- binary f es
   case r of
     (HiValueBool res) -> return $ HiValueBool $ not res
     _                 -> throwE HiErrorInvalidArgument
 
-indexHi ::
-  HiMonad m =>
-  [a] ->
-  [HiExpr] ->
-  ([a] -> ExceptT HiError m HiValue) ->
-  ExceptT HiError m HiValue
+indexHi :: HiMonad m => [a] -> [HiExpr]
+  -> ([a] -> ExceptT HiError m HiValue)
+  -> ExceptT HiError m HiValue
 indexHi as [e1] to = do
   i <- evalHiExpr e1
   case i of
@@ -284,11 +264,7 @@ slice i j str =
       j' = if j < 0 then abs (truncate j) else size - truncate j
    in (drop i' . take (size - j')) str
 
-many ::
-  HiMonad m =>
-  HiFun ->
-  [HiExpr] ->
-  ExceptT HiError m HiValue
+many :: HiMonad m => HiFun -> [HiExpr] -> ExceptT HiError m HiValue
 many f args =
   case f of
     HiFunList -> HiValueList . fromList <$> mapM evalHiExpr args
