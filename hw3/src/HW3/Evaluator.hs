@@ -12,7 +12,7 @@ import           Data.Foldable              (toList)
 import qualified Data.Map                   as M (Map, elems, fromList,
                                                   fromListWith, keys, lookup,
                                                   map, toList)
-import           Data.Ratio                 (denominator)
+import           Data.Ratio                 (denominator, numerator)
 import           Data.Semigroup             (stimes)
 import           Data.Sequence              (Seq, fromList, reverse)
 import qualified Data.Text                  as T (Text, length, pack, reverse,
@@ -164,9 +164,7 @@ binary fun [e1, e2] = do
     (HiFunRand, HiValueNumber i, HiValueNumber j) -> do
       _ <- isInteger i
       _ <- isInteger j
-      if denominator i == 1 && denominator j == 1
-      then return $ HiValueAction $ HiActionRand (truncate i) (truncate j)
-      else return HiValueNull
+      return $ HiValueAction $ HiActionRand (truncate i) (truncate j)
     _ -> throwE HiErrorInvalidArgument
 binary _ _ = throwE HiErrorArityMismatch
 
@@ -245,7 +243,10 @@ indexHi as [e1, e2] to = do
 indexHi _ _ _ = throwE HiErrorArityMismatch
 
 isInteger :: HiMonad m => Rational -> ExceptT HiError m HiValue
-isInteger r = if denominator r == 1
+isInteger r =
+  if denominator r == 1
+  && numerator r >= fromIntegral (minBound :: Int)
+  && numerator r <= fromIntegral (maxBound :: Int)
   then return (HiValueNumber r)
   else throwE HiErrorInvalidArgument
 
